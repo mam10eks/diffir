@@ -339,6 +339,23 @@ class MainTask:
             top_snippet = {"field": doc._fields[1], "start": 0, "stop": MAX_SNIPPET_LEN, "weights": []}
         return top_snippet
 
+    def json_serializable_dict(self, doc):
+        ret = {}
+
+        try:
+            ret['default_text'] = doc.default_text()
+        except:
+            pass
+        
+        for k, v in doc._asdict().items():
+            try:
+                json.dumps(v)
+                ret[k] = v
+            except:
+                pass
+
+        return ret
+
     def create_doc_objects(self, query_objects, dataset):
         """
         TODO: Need a better name
@@ -364,8 +381,8 @@ class MainTask:
         for doc in _logger.pbar(
             dataset.docs_store().get_many_iter(doc_ids_to_fetch), desc="Docs iter", total=len(doc_ids_to_fetch)
         ):
-            doc_objects[doc.doc_id] = doc._asdict()
-
+            doc_objects[doc.doc_id] = self.json_serializable_dict(doc)
+        
         return doc_objects
 
     def json(self, run_1_fn, run_2_fn=None):
