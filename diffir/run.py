@@ -186,7 +186,7 @@ class MainTask:
                 for rank, (doc_id, score) in enumerate(run_2[query.query_id].items()):
                     if doc_id not in doc_ids:
                         continue
-                    doc = docstore.get(doc_id)
+                    doc = DefaultTextDocument(docstore.get(doc_id))
                     weights = self.weight.score_document_regions(query, doc, 1)
                     run_2_for_query.append(
                         {
