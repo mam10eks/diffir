@@ -18,6 +18,26 @@ from diffir.utils import load_trec_run
 
 _logger = ir_datasets.log.easy()
 
+class DefaultTextDocument():
+    def init(self, doc):
+        self._fields = ['doc_id', 'default_text']
+        self.doc_id = doc.doc_id
+        self.default_text = doc.default_text()
+        self.irds_doc = doc
+
+    def _asdict(self):
+        ret = {'doc_id': self.doc_id, 'default_text': default_text}
+
+        for k, v in self.irds_doc._asdict().items():
+            try:
+                dumped = json.dumps(v)
+                ret[k] = v
+                if len(dumped) > 5000 and type(ret) == str:
+                    ret[k] = v[:5000] + f' ... (TRUNCATED BY DIFFIR, FIELD WAS OVERALL {len(dumped)} characters long)'
+            except:
+                ret[k] = 'Not Serializable'
+
+        return ret
 
 def main():
     parser = argparse.ArgumentParser()
@@ -143,7 +163,7 @@ class MainTask:
             for rank, (doc_id, score) in enumerate(run_1[query.query_id].items()):
                 if doc_id not in doc_ids:
                     continue
-                doc = docstore.get(doc_id)
+                doc = DefaultTextDocument(docstore.get(doc_id))
                 weights = self.weight.score_document_regions(query, doc, 0)
                 run_1_for_query.append(
                     {
@@ -339,23 +359,6 @@ class MainTask:
             top_snippet = {"field": doc._fields[1], "start": 0, "stop": MAX_SNIPPET_LEN, "weights": []}
         return top_snippet
 
-    def json_serializable_dict(self, doc):
-        ret = {}
-
-        try:
-            ret['default_text'] = doc.default_text()
-        except:
-            pass
-        
-        for k, v in doc._asdict().items():
-            try:
-                json.dumps(v)
-                ret[k] = v
-            except:
-                pass
-
-        return ret
-
     def create_doc_objects(self, query_objects, dataset):
         """
         TODO: Need a better name
@@ -381,7 +384,7 @@ class MainTask:
         for doc in _logger.pbar(
             dataset.docs_store().get_many_iter(doc_ids_to_fetch), desc="Docs iter", total=len(doc_ids_to_fetch)
         ):
-            doc_objects[doc.doc_id] = self.json_serializable_dict(doc)
+            doc_objects[doc.doc_id] = DefaultTextDocument(doc)._asdict()
         
         return doc_objects
 
