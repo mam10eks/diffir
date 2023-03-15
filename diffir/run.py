@@ -26,7 +26,7 @@ class DefaultTextDocument():
         self.irds_doc = doc
 
     def _asdict(self):
-        ret = {'doc_id': self.doc_id, 'default_text': default_text}
+        ret = {'doc_id': self.doc_id, 'default_text': self.default_text}
 
         for k, v in self.irds_doc._asdict().items():
             try:
@@ -38,6 +38,9 @@ class DefaultTextDocument():
                 ret[k] = 'Not Serializable'
 
         return ret
+
+    def __iter__(self):
+        return [self.doc_id, self.default_text].__iter__()
 
 def main():
     parser = argparse.ArgumentParser()
