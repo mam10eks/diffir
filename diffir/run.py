@@ -19,7 +19,7 @@ from diffir.utils import load_trec_run
 _logger = ir_datasets.log.easy()
 
 class DefaultTextDocument():
-    def init(self, doc):
+    def __init__(self, doc):
         self._fields = ['doc_id', 'default_text']
         self.doc_id = doc.doc_id
         self.default_text = doc.default_text()
