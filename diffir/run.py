@@ -25,17 +25,18 @@ class DefaultTextDocument():
         self.default_text = doc.default_text()
         self.irds_doc = doc
 
-    def _asdict(self):
+    def _asdict(self, all_fields=False):
         ret = {'doc_id': self.doc_id, 'default_text': self.default_text}
 
-        for k, v in self.irds_doc._asdict().items():
-            try:
-                dumped = json.dumps(v)
-                ret[k] = v
-                if len(dumped) > 5000 and type(ret) == str:
-                    ret[k] = v[:5000] + f' ... (TRUNCATED BY DIFFIR, FIELD WAS OVERALL {len(dumped)} characters long)'
-            except:
-                ret[k] = 'Not Serializable'
+        if all_fields:
+            for k, v in self.irds_doc._asdict().items():
+                try:
+                    dumped = json.dumps(v)
+                    ret[k] = v
+                    if len(dumped) > 5000 and type(ret) == str:
+                        ret[k] = v[:5000] + f' ... (TRUNCATED BY DIFFIR, FIELD WAS OVERALL {len(dumped)} characters long)'
+                except:
+                    ret[k] = 'Not Serializable'
 
         return ret
 
@@ -387,7 +388,7 @@ class MainTask:
         for doc in _logger.pbar(
             dataset.docs_store().get_many_iter(doc_ids_to_fetch), desc="Docs iter", total=len(doc_ids_to_fetch)
         ):
-            doc_objects[doc.doc_id] = DefaultTextDocument(doc)._asdict()
+            doc_objects[doc.doc_id] = DefaultTextDocument(doc)._asdict(True)
         
         return doc_objects
 
