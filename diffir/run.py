@@ -413,7 +413,11 @@ class MainTask:
             run_1, run_2, diff_queries, qid2diff, metric_name, dataset, qid2qrelscores=qid2qrelscores
         )
         doc_objects = self.create_doc_objects(diff_query_objects, dataset)
-
+        
+        try:
+            qrels_def = dataset.qrels_defs()
+        except:
+            qrels_def = {0: 'Not Relevant', 1: 'Relevant'}
         return json.dumps(
             {
                 "meta": {
@@ -422,7 +426,7 @@ class MainTask:
                     "dataset": self.dataset,
                     "measure": self.measure.module_name,
                     # "weight": self.weight.module_name,
-                    "qrelDefs": dataset.qrels_defs(),
+                    "qrelDefs": qrels_def,
                     "queryFields": dataset.queries_cls()._fields,
                     "docFields": dataset.docs_cls()._fields,
                     "relevanceColors": self.make_rel_colors(dataset),
