@@ -15,6 +15,7 @@ from ir_measures import iter_calc
 from ir_measures import P, nDCG
 from diffir import QrelMeasure, TopkMeasure, WeightBuilder
 from diffir.utils import load_trec_run
+from diffir.dynamic_ir_datasets_loader import register_irds_from_files
 
 _logger = ir_datasets.log.easy()
 
@@ -23,13 +24,13 @@ class DefaultTextDocument():
         self._fields = ['doc_id', 'default_text']
         self.doc_id = doc.doc_id
         self.default_text = doc.default_text()
-        self.irds_doc = doc
+        self.irds_doc = doc._asdict()
 
     def _asdict(self, all_fields=False):
         ret = {'doc_id': self.doc_id, 'default_text': self.default_text}
 
         if all_fields:
-            for k, v in self.irds_doc._asdict().items():
+            for k, v in self.irds_doc.items():
                 try:
                     dumped = json.dumps(v)
                     ret[k] = v
@@ -70,6 +71,12 @@ def main():
         args.cli = True  # default
     diff(args.runfiles, config, cli=args.cli, web=args.web)
 
+
+def diff_from_local_data(runs, data_files, cli, web, print_html):
+    irds_id = register_irds_from_files(data_files)
+    config = {"dataset": irds_id, "topk": 25, "measure": "tauap", "weight": {"weights_1": None, "weights_2": None, "weights_3": None}}
+    
+    return diff(runs, config=config, cli=cli, web=web, print_html=print_html)
 
 def diff(runs, config, cli, web, print_html=True):
     for i, run in enumerate(runs):
@@ -140,12 +147,12 @@ class MainTask:
             qrels = {}
 
         run1_metrics = defaultdict(lambda: defaultdict(lambda: None))
-        for metrics in iter_calc([P@1, P@3, P@5, P@10, nDCG@1, nDCG@3, nDCG@5, nDCG@10], qrels, run_1):
-            run1_metrics[metrics.query_id][str(metrics.measure)] = metrics.value
+        #for metrics in iter_calc([P@1, P@3, P@5, P@10, nDCG@1, nDCG@3, nDCG@5, nDCG@10], qrels, run_1):
+        #    run1_metrics[metrics.query_id][str(metrics.measure)] = metrics.value
         if run_2:
             run2_metrics = defaultdict(lambda: defaultdict(lambda: None))
-            for metrics in iter_calc([P@1, P@3, P@5, P@10, nDCG@1, nDCG@3, nDCG@5, nDCG@10], qrels, run_2):
-                run2_metrics[metrics.query_id][str(metrics.measure)] = metrics.value
+            #for metrics in iter_calc([P@1, P@3, P@5, P@10, nDCG@1, nDCG@3, nDCG@5, nDCG@10], qrels, run_2):
+            #    run2_metrics[metrics.query_id][str(metrics.measure)] = metrics.value
         docstore = dataset.docs_store()
         qids_set = set(qids)  # Sets do O(1) lookups
         qid2object = {}
