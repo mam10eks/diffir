@@ -72,9 +72,9 @@ def main():
     diff(args.runfiles, config, cli=args.cli, web=args.web)
 
 
-def diff_from_local_data(runs, data_files, cli, web, print_html):
+def diff_from_local_data(runs, data_files, cli, web, print_html, topk=25):
     irds_id = register_irds_from_files(data_files)
-    config = {"dataset": irds_id, "topk": 25, "measure": "tauap", "weight": {"weights_1": None, "weights_2": None, "weights_3": None}}
+    config = {"dataset": irds_id, "topk": topk, "measure": "tauap", "weight": {"weights_1": None, "weights_2": None, "weights_3": None}}
     
     return diff(runs, config=config, cli=cli, web=web, print_html=print_html)
 
