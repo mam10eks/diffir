@@ -5,6 +5,7 @@ from typing import NamedTuple, List, Mapping, Optional, Iterator
 from ir_datasets.indices import Docstore
 from ir_datasets import registry
 from copy import deepcopy
+import gzip
 
 class GenericDocFromDict:
     _fields = []
@@ -67,7 +68,10 @@ def register_irds_from_files(data_files):
     qrels = []
     qrels_defs = {}
     for r in data_files:
-        r = json.load(open(r))
+        if r.endswith('.gz'):
+            r = json.load(gzip.open(r, 'rt'))
+        else:
+            r = json.load(open(r))
         for docno, doc in r['documents'].items():
            documents[docno] = GenericDocFromDict(doc)
         for qid, query in r['queries'].items():
