@@ -23,9 +23,9 @@ class ExactMatchWeight(Weight):
         :return:
         """
         try:
-            nltk.data.find("tokenizers/punkt")
+            nltk.data.find("tokenizers/punkt_tab")
         except (LookupError, OSError):
-            nltk.download("punkt")
+            nltk.download("punkt_tab")
         try:
             nltk.data.find("corpora/stopwords")
         except LookupError:
@@ -65,9 +65,9 @@ class ExactMatchWeight(Weight):
             return self.fast_score_document_regions(query, doc)
 
         try:
-            nltk.data.find("tokenizers/punkt")
+            nltk.data.find("tokenizers/punkt_tab")
         except (LookupError, OSError):
-            nltk.download("punkt")
+            nltk.download("punkt_tab")
         try:
             nltk.data.find("corpora/stopwords")
         except LookupError:

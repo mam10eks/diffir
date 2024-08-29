@@ -1,4 +1,4 @@
-nltk>=3.5
+nltk>=3.8.2,==3.8.*
 ir_measures>=0.1.4
 mako~=1.1
 ir_datasets>=0.3.1
